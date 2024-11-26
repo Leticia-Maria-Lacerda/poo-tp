@@ -1,0 +1,370 @@
+import java.io.*;
+
+import java.util.*;
+
+
+class Propriedade{
+
+int preco;
+
+int aluguel;
+
+Jogador proprietario;
+
+
+public Propriedade(int preco, int aluguel) {
+
+this.preco = preco;
+
+this.aluguel = aluguel;
+
+this.proprietario = null;
+
+}
+
+}
+
+
+class Jogador {
+
+int id;
+
+int moedas;
+
+List<Propriedade> propriedades;
+
+String comportamento;
+
+
+public Jogador(int id, String comportamento) {
+
+this.id = id;
+
+this.moedas = 300;
+
+this.propriedades = new ArrayList<>();
+
+this.comportamento = comportamento;
+
+}
+
+
+// Comportamentos de compra
+
+public boolean podeComprar(PropriedadePropriedade) {
+
+if (Propriedade.proprietario != null) {
+
+return false;
+
+}
+
+
+switch (comportamento) {
+
+case "impulsivo":
+
+return true;
+
+case "exigente":
+
+return Propriedade.aluguel > 50;
+
+case "cauteloso":
+
+return this.moedas >= Propriedade.preco + 80;
+
+case "aleatorio":
+
+return Math.random() < 0.5;
+
+default:
+
+return false;
+
+}
+
+}
+
+
+// Compra a propriedade
+
+public void compraPropriedade(PropriedadePropriedade) {
+
+if (this.moedas >= Propriedade.preco) {
+
+this.moedas -= Propriedade.preco;
+
+this.propriedades.adiciona(Propriedade);
+
+Propriedade.proprietario = this;
+
+}
+
+}
+
+
+// Paga aluguel se necessário
+
+public void pagaAluguel(PropriedadePropriedade) {
+
+if (Propriedade.proprietario != null && Propriedade.proprietario != this) {
+
+this.moedas -= Propriedade.aluguel;
+
+Propriedade.proprietario.moedas += Propriedade.aluguel;
+
+}
+
+}
+
+}
+
+
+class Jogo {
+
+List<Jogador> Jogadores;
+
+List<Propriedade> propriedades;
+
+int rodadas;
+
+
+public Jogo(List<Jogador> Jogadores, List<Propriedade> propriedades) {
+
+this.Jogadores = Jogadores;
+
+this.propriedades = propriedades;
+
+this.rodadas = 0;
+
+}
+
+
+// Joga uma rodada
+
+public boolean jogaRodada() {
+
+for (Jogador Jogador : Jogadores) {
+
+if (Jogador.moedas < 0) continue; // Ignora jogador falido
+
+
+int rolaDado= (int) (Math.random() * 6) + 1;
+
+PropriedadePropriedade= propriedades.get(rolaDado% propriedades.size());
+
+
+if (Propriedade.proprietario == null && Jogador.podeComprar(Propriedade)) {
+
+Jogador.compraPropriedade(Propriedade);
+
+} else {
+
+Jogador.pagaAluguel(Propriedade);
+
+}
+
+
+if (Jogador.moedas < 0) {
+
+Jogador.propriedades.limpar();
+
+Jogador.moedas = 0;
+
+}
+
+}
+
+
+this.rodadas++;
+
+
+// Verifica se o jogo terminou
+
+List<Jogador> activeJogadores = new ArrayList<>();
+
+for (Jogador Jogador : Jogadores) {
+
+if (Jogador.moedas >= 0) activeJogadores.adiciona(Jogador);
+
+}
+
+
+return activeJogadores.size() == 1 || this.rodadas >= 1000;
+
+}
+
+
+// Simula uma partida
+
+public String run() {
+
+while (!jogaRodada()) {
+
+// Continue jogando até que haja um vencedor ou o limite de rodadas seja atingido
+
+}
+
+
+Jogador Vitorianer = null;
+
+for (Jogador Jogador : Jogadores) {
+
+if (Jogador.moedas >= 0 && (Vitorianer == null || Jogador.moedas > Vitorianer.moedas)) {
+
+Vitorianer = Jogador;
+
+}
+
+}
+
+return Vitorianer.comportamento;
+
+}
+
+}
+
+
+public class SimulacaoJogo{
+
+
+// Lê o arquivo de configuração
+
+public static List<Propriedade> leJogoConfig(String filename) throws IOException {
+
+List<Propriedade> propriedades = new ArrayList<>();
+
+BufferedLeitor leitor = new BufferedLeitor(new FileLeitor(filename));
+
+
+String linha;
+
+while ((linha = leitor.leLinha()) != null) {
+
+String[] tokens = linha.split(" ");
+
+int preco = Integer.parseInt(tokens[0]);
+
+int aluguel = Integer.parseInt(tokens[1]);
+
+propriedades.adiciona(new Propriedade(preco, aluguel));
+
+}
+
+
+leitor.close();
+
+return propriedades;
+
+}
+
+
+// Simula múltiplas partidas
+
+public static void simularJogos(int numSimulacoes, List<Propriedade> propriedades) {
+
+String[] comportamentos = {"impulsivo", "exigente", "cauteloso", "aleatorio"};
+
+int[] contadorVitorias = new int[4];
+
+int totalRodadas = 0;
+
+int contadorTimeout= 0;
+
+
+for (int i = 0; i < numSimulacoes; i++) {
+
+List<Jogador> Jogadores = new ArrayList<>();
+
+for (int j = 0; j < comportamentos.length; j++) {
+
+Jogadores.adiciona(new Jogador(j, comportamentos[j]));
+
+}
+
+
+// Aleatoriza a ordem dos jogadores
+
+Collections.shuffle(Jogadores);
+
+
+Jogo Jogo = new Jogo(Jogadores, propriedades);
+
+String VitorianerComportamento = Jogo.run();
+
+totalRodadas += Jogo.rodadas;
+
+
+// Conta a vitória do comportamento vencedor
+
+for (int j = 0; j < comportamentos.length; j++) {
+
+if (VitorianerComportamento.equals(comportamentos[j])) {
+
+contadorVitorias[j]++;
+
+}
+
+}
+
+
+// Verifica se a partida foi um timeout
+
+if (Jogo.rodadas >= 1000) {
+
+timeoutCount++;
+
+}
+
+}
+
+
+// Resultados
+
+System.out.println("Timeouts: " + contadorTimeout+ " / " + numSimulacoes);
+
+System.out.println("Average rodadas per Jogo: " + (double) totalRodadas / numSimulacoes);
+
+for (int i = 0; i < comportamentos.length; i++) {
+
+System.out.printf("Vitoria percentage for %s: %.2f%%\n", comportamentos[i], (double) contadorVitorias[i] / numSimulacoes * 100);
+
+}
+
+
+// Maisra o comportamento vencedor
+
+int maximoVitorias = Arrays.stream(contadorVitorias).max().getAsInt();
+
+for (int i = 0; i < contadorVitorias.length; i++) {
+
+if (contadorVitorias[i] == maximoVitorias) {
+
+System.out.println("O comportamento que ganha mais: " + comportamentos[i]);
+
+break;
+
+}
+
+}
+
+}
+
+
+public static void main(String[] args) throws IOException {
+
+// Lê as propriedades do arquivo
+
+List<Propriedade> propriedades = leJogoConfig("JogoConfig.txt");
+
+
+// Simula 300 partidas
+
+int numSimulacoes = 300;
+
+simularJogos(numSimulacoes, propriedades);
+
+}
+
+}
